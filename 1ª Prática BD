@@ -1,0 +1,47 @@
+CREATE TABLE mentores (
+ id_mentor INTEGER PRIMARY KEY AUTOINCREMENT,
+ nome VARCHAR(150) NOT NULL,
+ email VARCHAR(100) NOT NULL UNIQUE,
+ anos_experiencia INT NOT NULL,
+ biografia TEXT
+);
+
+CREATE TABLE alunos(
+  id_aluno INTEGER PRIMARY KEY AUTOINCREMENT,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  nivel_experiência VARCHAR(50),
+  objetivos TEXT
+);
+
+CREATE TABLE areas(
+	id_area INTEGER PRIMARY KEY AUTOINCREMENT,
+	nome_area VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE mentor_areas (
+id_mentor INT,
+id_area INT,
+PRIMARY KEY (id_mentor, id_area),
+FOREIGN KEY (id_mentor) REFERENCES mentores(id_mentor) ON DELETE CASCADE,
+FOREIGN KEY (id_area) REFERENCES areas(id_area) ON DELETE CASCADE
+);
+
+INSERT INTO mentores (nome, email, anos_experiencia, biografia)
+VALUES 
+('Profª Louisiana', 'louisiana.freitasa@email.com', 40, 'Especialista em Banco de Dados e Inovação'),
+('Cleiton', 'cleiton.santos@email.com', 1, 'Desenvolvedor de sistemas'),
+('Maria Vitória', 'mariavitoria@email.com', 2, 'Frontend'),
+('Marjory', 'marjory.dias@email.com', 10, 'Especialista em SQL'),
+('Flávio', 'flavio.caladoa@email.com', 20, 'Especialista em Inteligência Artificial'),
+('Verena', 'verena.azevedo@email.com', 30, 'Fullstack Sênior');
+SELECT * FROM mentores;
+
+UPDATE mentores
+SET biografia = 'Especialista em Banco de Dados, Inovação e Inteligência Artificial'
+WHERE id_mentor = 1;
+SELECT * FROM mentores;
+
+DELETE FROM mentores
+WHERE id_mentor = 1;
+SELECT * FROM mentores;
