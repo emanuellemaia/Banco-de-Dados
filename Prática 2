@@ -1,0 +1,180 @@
+-- criação database banco
+CREATE DATABASE banco;
+USE banco;
+
+
+-- tabela cliente
+CREATE TABLE cliente(
+cod_cliente INT PRIMARY KEY AUTO_INCREMENT,
+cliente VARCHAR (200),
+profissao VARCHAR (200),
+localidade VARCHAR (100)
+);
+
+-- tabela agencia
+CREATE TABLE agencia(
+cod_agencia INT PRIMARY KEY AUTO_INCREMENT,
+agencia VARCHAR(300),
+localidade VARCHAR (300)
+);
+
+-- tabela conta
+CREATE TABLE conta (
+num_conta INT PRIMARY KEY AUTO_INCREMENT,
+tipo_conta VARCHAR (500),
+cod_cliente INT,
+cod_agencia INT,
+saldo DECIMAL (10,2),
+FOREIGN KEY (cod_cliente) REFERENCES cliente (cod_cliente),
+FOREIGN KEY (cod_agencia) REFERENCES agencia (cod_agencia)
+);
+
+-- tabela emprestimo
+CREATE TABLE emprestimo (
+num_empestimo INT PRIMARY KEY AUTO_INCREMENT,
+cod_cliente INT,
+cod_agencia INT,
+valor DECIMAL (10,2),
+FOREIGN KEY (cod_cliente) REFERENCES cliente (cod_cliente),
+FOREIGN KEY (cod_agencia) REFERENCES agencia (cod_agencia)
+);
+
+-- inserir clientes
+INSERT INTO cliente (cod_cliente, cliente, profissao, localidade) VALUES
+(1, "Maria Silva", "Analista de dados", "Bragança"),
+(2, "José Souza", "TI", "Camaçari"),
+(3, "Júlia da Mata", "Arquiteta", "Braga"),
+(4, "Alice Oliveira", "Engenheira de Software", "Los Angeles");
+
+-- mostrar clientes
+SELECT cod_cliente, cliente
+FROM cliente;
+
+-- mostrar clientes que moram em braga
+SELECT cod_cliente, cliente
+FROM Cliente
+WHERE localidade = 'Braga';
+
+-- inserir dados agencia
+INSERT INTO agencia (cod_agencia, agencia, localidade) VALUES
+(123, "Agencia Central", "Bragança"),
+(124, "Agencia Avenida", "Braga");
+
+-- inserir dados conta
+INSERT INTO conta (num_conta, tipo_conta, cod_cliente, cod_agencia, saldo) VALUES
+(10, "Conta corrente", 1, 123, 500),
+(11, "Conta digital", 2, 124, 680),
+(12, "Conta poupança", 3, 123, 579.77),
+(13, "Conta corrente", 4, 124, 867);
+
+-- inserir dados emprestimo
+INSERT INTO emprestimo (num_empestimo, cod_cliente, cod_agencia, valor) VALUES
+(12, 1, 123, 2510),
+(13, 2, 124, 1603),
+(14, 3, 123, 3500),
+(15, 4, 124, 1245);
+
+-- mostrar clientes com conta na agencia 123
+SELECT cod_cliente
+FROM conta
+WHERE cod_agencia = '123';
+
+-- mostrar clientes que moram onde tem agencias
+SELECT c.cod_cliente, c.cliente
+FROM cliente c, agencia a
+WHERE c.localidade = a.localidade;
+
+-- mostrar clientes que moram no mesmo lugar da agencia que têm conta
+SELECT c.cod_cliente, c.cliente
+FROM cliente c, conta ct, agencia a
+WHERE c.cod_cliente = ct.cod_cliente
+AND ct.cod_agencia = a.cod_agencia
+AND c.localidade = a.localidade;
+
+-- mostrar clientes que tem emprestimo maior que 2500
+SELECT cod_cliente
+FROM Emprestimo
+WHERE valor > 2500;
+
+-- clientes com mesma profissão que o cliente 1
+SELECT cliente
+FROM cliente
+WHERE profissao = (
+    SELECT profissao
+    FROM cliente
+    WHERE cod_cliente = 1
+);
+
+ -- mostra em ordem decrescente as contas da agencia 123
+SELECT num_conta, saldo
+FROM conta
+WHERE cod_agencia = '123'
+ORDER BY saldo DESC;
+
+
+-- mostra quantas contas existem
+SELECT COUNT(*) 
+FROM conta;
+
+
+-- mostra quantos clientes têm conta na agencia 123
+SELECT COUNT(DISTINCT cod_cliente)
+FROM conta
+WHERE cod_agencia = '123';
+
+ -- mostra número de conta por agencia
+SELECT cod_agencia, COUNT(*)
+FROM conta
+GROUP BY cod_agencia;
+
+
+-- mostra clientes com profissão desconhecida
+SELECT cod_cliente, cliente
+FROM cliente
+WHERE profissao IS NULL;
+
+
+ -- mostra para cada agencia com menos 1000 contas, os valores máximos, mínimos e saldo médio
+SELECT cod_agencia,
+       MAX(saldo) AS saldo_maximo,
+       MIN(saldo) AS saldo_minimo,
+       AVG(saldo) AS saldo_medio
+FROM conta
+GROUP BY cod_agencia
+HAVING COUNT(*) < 1000;
+
+-- mostra clientes que são apenas depositantes
+SELECT c.cod_cliente, c.cliente
+FROM cliente c
+JOIN conta ct ON c.cod_cliente = ct.cod_cliente
+WHERE ct.cod_agencia = '123'
+AND c.cod_cliente NOT IN (
+    SELECT cod_cliente
+    FROM emprestimo
+    WHERE cod_agencia = '123'
+);
+
+
+-- cliente com pelo menos um empréstimo
+SELECT DISTINCT c.cod_cliente, c.cliente
+FROM cliente c
+JOIN emprestimo e ON c.cod_cliente = e.cod_cliente;
+
+-- mostra agencias com depositantes que mostram em Lisboa 
+SELECT DISTINCT a.cod_agencia, a.agencia
+FROM agencia a
+JOIN conta ct ON a.cod_agencia = ct.cod_agencia
+JOIN cliente c ON ct.cod_cliente = c.cod_cliente
+WHERE c.localidade = 'Lisboa';
+
+
+-- mostra clientes com saldo maiores que o empréstimo 
+SELECT c.cod_cliente, c.cliente
+FROM cliente c
+JOIN conta ct ON c.cod_cliente = ct.cod_cliente
+GROUP BY c.cod_cliente, c.cliente
+HAVING SUM(ct.saldo) > (
+    SELECT MAX(valor)
+    FROM Emprestimo
+);
+
