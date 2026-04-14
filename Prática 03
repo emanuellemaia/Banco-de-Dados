@@ -1,0 +1,49 @@
+-- CRIAÇÃO DATABASE
+CREATE DATABASE controle_estoque;
+USE controle_estoque;
+
+-- TABELA FORNECEDORES
+CREATE TABLE fornecedores (
+id_fornecedor INT PRIMARY KEY AUTO_INCREMENT,
+nome_fornecedor VARCHAR (255) NOT NULL
+);
+
+-- TABELA PRODUTOS
+CREATE TABLE produtos (
+id_produto INT PRIMARY KEY AUTO_INCREMENT,
+nome VARCHAR (255) NOT NULL,
+preco_unitario DECIMAL(10,2) NOT NULL,
+quantidade_estoque INT NOT NULL,
+id_fornecedor INT,
+FOREIGN KEY (id_fornecedor) REFERENCES fornecedores (id_fornecedor)
+);
+
+-- INSERÇÃO DE FORNECEDORES
+INSERT INTO fornecedores VALUES
+(1, 'Tech Componentes'),
+(2, 'Gráficos Poderosos');
+
+-- INSERÇÃO DE PRODUTOS
+INSERT INTO produtos VALUES
+(12, 'Monitor LED 27"', 952.90, 20, 1),
+(13, 'Placa de Vídeo RTX 4070', 5040.89, 30, 2);
+
+-- ATUALIZAÇÃO DO PREÇO E QUANTIDADE EM ESTOQUE
+UPDATE produtos
+SET preco_unitario = 850.50,
+quantidade_estoque = 35
+WHERE id_produto = 12;
+
+UPDATE produtos
+SET preco_unitario = 4200.00,
+quantidade_estoque =  12
+WHERE id_produto = 13;
+
+-- MOSTRA NOME DO FORNECEDOR E VALOR TOTAL EM ESTOQUE
+SELECT 
+f.nome_fornecedor,
+SUM(p.preco_unitario * p.quantidade_estoque) AS valor_total_estoque
+FROM fornecedores f
+JOIN produtos p ON f.id_fornecedor = p.id_fornecedor
+GROUP BY f.id_fornecedor, f.nome_fornecedor
+
